@@ -26,7 +26,7 @@ style:
 
 unit:
 	@echo "Running unit tests ..."
-	poetry run pytest .
+	cd synthea && poetry run  pytest .
 
 run:
-	poetry run python synthea/app.py
+	poetry --group dev run python -m synthea.main

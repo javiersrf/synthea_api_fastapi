@@ -1,6 +1,6 @@
 import datetime
 
-from core.models.patient import Patient
+from synthea.core.models.patient import Patient
 from sqlalchemy.orm import Session
 from typing import List
 

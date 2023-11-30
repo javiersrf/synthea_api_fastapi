@@ -1,7 +1,7 @@
-from core.dependencies import get_db
-from core.schemas.patient import PatientIn, PatientOut
+from synthea.core.dependencies import get_db
+from synthea.core.schemas.patient import PatientIn, PatientOut
 from fastapi import APIRouter, Depends, File, UploadFile
-from v1.services.patient_services import PatientServices
+from synthea.v1.services.patient_services import PatientServices
 
 router = APIRouter(
     prefix="/patients",

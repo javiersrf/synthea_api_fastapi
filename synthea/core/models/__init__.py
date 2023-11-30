@@ -1,1 +1,1 @@
-from core.models.base import BModel
+from synthea.core.models.base import BModel

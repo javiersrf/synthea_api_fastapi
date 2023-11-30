@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Pytest",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "cwd": "${workspaceFolder}/synthea",
+            "args": [
+            ],
+            
+            "pythonArgs": [ "-Xfrozen_modules=off"],
+            "env": {
+                "HOME":"~/tmp",
+                "RUN_ENV":"test",
+                "SQLALCHEMY_DATABASE_URL":"sqlite:///test.db"
+            },
+        }
+    ]
+}

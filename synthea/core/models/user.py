@@ -1,4 +1,4 @@
-from v1.models import BModel
+from synthea.v1.models import BModel
 
 
 class User(BModel):

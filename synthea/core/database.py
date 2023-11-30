@@ -1,4 +1,4 @@
-from core.settings import SQLALCHEMY_DATABASE_URL
+from synthea.core.settings import SQLALCHEMY_DATABASE_URL
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

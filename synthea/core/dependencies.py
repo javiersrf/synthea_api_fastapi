@@ -1,4 +1,4 @@
-from core.database import SessionLocal
+from synthea.core.database import SessionLocal
 
 
 def get_db():

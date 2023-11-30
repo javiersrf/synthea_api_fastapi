@@ -1,4 +1,4 @@
-from core.models import BModel
+from synthea.core.models import BModel
 from sqlalchemy import Column, String
 
 

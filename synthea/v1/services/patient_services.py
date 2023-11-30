@@ -1,12 +1,12 @@
 from bs4 import BeautifulSoup
-from core.models.patient import Patient
-from core.schemas.patient import PatientIn
+from synthea.core.models.patient import Patient
+from synthea.core.schemas.patient import PatientIn
 from sqlalchemy.orm import Session
-from v1.repo.patient import PatientRepository
+from synthea.v1.repo.patient import PatientRepository
 from fastapi import UploadFile, HTTPException
-from utils.files import is_xml, is_pdf, extract_xml_from_pdf, extract_xml_file_content
+from synthea.utils.files import is_xml, extract_xml_file_content
 from starlette.status import HTTP_400_BAD_REQUEST
-import logging
+
 
 class PatientServices:
 
