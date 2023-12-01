@@ -28,7 +28,6 @@ def override_get_db():
     finally:
         db.rollback()
         db.close()
-        os.remove("./test.db")
 
 
 app.dependency_overrides[get_db] = override_get_db
@@ -41,6 +40,12 @@ def resource():
     yield "resource"
     print("teardown")
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture(autouse=True, scope="session")
+def remove_db_after_tests():
+    yield "db"
+    os.remove("./test.db")
 
 
 @pytest.fixture(scope="module", autouse=True)
