@@ -15,13 +15,11 @@ test:
 
 lint:
 	@echo "Checking code style ..."
-	poetry run pylint care_api
-	poetry run black --check .
-	poetry run isort --check .
+	poetry run ruff check .
 
 style:
 	@echo "Applying code style ..."
-	poetry run black .
+	poetry run ruff  format .
 	poetry run isort --jobs -1 .
 
 unit:

@@ -1,6 +1,8 @@
-from fastapi import UploadFile
-import PyPDF2
 import io
+
+import PyPDF2
+from fastapi import UploadFile
+
 
 def is_xml(file: UploadFile):
     content_type = file.content_type
@@ -15,6 +17,7 @@ def is_pdf(file: UploadFile):
         return False
     return True
 
+
 async def extract_xml_from_pdf(file: UploadFile):
     content = await file.read()
     reader = PyPDF2.PdfReader(io.BytesIO(content))
@@ -22,6 +25,7 @@ async def extract_xml_from_pdf(file: UploadFile):
     for _, page in enumerate(reader.pages):
         xml_content += page.extract_text()
     return xml_content
+
 
 async def extract_xml_file_content(file: UploadFile):
     try:

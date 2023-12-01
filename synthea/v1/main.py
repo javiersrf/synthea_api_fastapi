@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from synthea.v1.endpoints import patient
 
 app = FastAPI()

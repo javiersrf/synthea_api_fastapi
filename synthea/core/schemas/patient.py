@@ -1,12 +1,18 @@
-from pydantic import BaseModel
 from datetime import datetime
 
+from pydantic import BaseModel
+
+
 class PatientIn(BaseModel):
-    id: str
+    id: str | None = None
     name: str
     family: str
-    created_at: datetime
-    updated_at: datetime
+
+
+class PatientPut(BaseModel):
+    id: str | None = None
+    name: str | None = None
+    family: str | None = None
 
 
 class PatientOut(BaseModel):

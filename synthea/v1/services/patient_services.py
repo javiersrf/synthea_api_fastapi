@@ -1,46 +1,58 @@
 from bs4 import BeautifulSoup
-from synthea.core.models.patient import Patient
-from synthea.core.schemas.patient import PatientIn
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
-from synthea.v1.repo.patient import PatientRepository
-from fastapi import UploadFile, HTTPException
-from synthea.utils.files import is_xml, extract_xml_file_content
 from starlette.status import HTTP_400_BAD_REQUEST
+
+from synthea.core.models.patient import Patient
+from synthea.core.schemas.patient import PatientIn, PatientPut
+from synthea.utils.files import extract_xml_file_content, is_xml
+from synthea.v1.repo.patient import PatientRepository
 
 
 class PatientServices:
-
     @classmethod
-    def list_patients(cls, db: Session, **params):
+    def list_patients(cls, db: Session, q=None, **params):
         repo = PatientRepository(db=db)
-        return repo.list(**params)
+        result = repo.search(q=q, **params) if q else repo.list(**params)
+        return result
 
     @classmethod
-    async def create_patient(cls, files: list[UploadFile], patient_in: PatientIn | None, db: Session):
-        if files:
-            return await cls.insert_patients_from_files(db=db, files=files)
-        if patient_in:
-            return await cls.insert_patient(data=patient_in, db=db)
-        raise HTTPException(detail={"message":"missing patient data"}, status_code=HTTP_400_BAD_REQUEST)
+    def get_patient(cls, db: Session, pk: int):
+        repo = PatientRepository(db=db)
+        patient = repo.get(pk=pk)
+
+        return patient
 
     @classmethod
     async def insert_patient(cls, data: PatientIn, db: Session):
         repo = PatientRepository(db=db)
-        patient = Patient(**data)
+        patient = Patient(**data.model_dump())
         return repo.create(patient=patient)
-    
-    @classmethod
-    async def insert_patients_from_files(cls, files: list[UploadFile], db: Session):
-        patients = []
-        for file in files:
-            if not is_xml(file=file):
-                raise HTTPException(detail={"message":"wrong format data"}, status_code=HTTP_400_BAD_REQUEST)
-            content = await extract_xml_file_content(file=file)
 
-            patients.append(cls._extract_patient_from_file_content(file_content=content))
+    @classmethod
+    async def update_patient(
+        cls, patient: Patient, data: PatientPut, db: Session
+    ) -> Patient:
+        if patient:
+            for key, value in data.model_dump().items():
+                if value:
+                    setattr(patient, key, value)
+            db.commit()
+            return patient
+        return None
+
+    @classmethod
+    async def insert_patients_from_files(cls, file: UploadFile, db: Session):
+        if not is_xml(file=file):
+            raise HTTPException(
+                detail={"message": "wrong format data"},
+                status_code=HTTP_400_BAD_REQUEST,
+            )
+        content = await extract_xml_file_content(file=file)
+        patient = cls._extract_patient_from_file_content(file_content=content)
+
         repo = PatientRepository(db=db)
-        repo.bulk_create(patients=patients)
-        return patients
+        return repo.create(patient=patient)
 
     @classmethod
     def _extract_patient_from_file_content(cls, file_content):

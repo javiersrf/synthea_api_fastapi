@@ -1,8 +1,11 @@
 import datetime
+from typing import List
+
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 from synthea.core.models.patient import Patient
-from sqlalchemy.orm import Session
-from typing import List
+
 
 class PatientRepository:
     db: Session
@@ -22,11 +25,20 @@ class PatientRepository:
 
         return query.offset(start).limit(limit).all()
 
-    def get(self, pk: str) -> Patient:
-        return self.base_query.get(
-            Patient,
-            pk,
+    def search(
+        self, q: str, limit: int = 10, start: int = 0, **params
+    ) -> List[Patient]:
+        query = self.base_query
+        query = query.filter(
+            or_(Patient.name.ilike(f"%{q}%"), Patient.family.ilike(f"%{q}%"))
         )
+        if params:
+            query = query.filter_by(**params)
+
+        return query.offset(start).limit(limit).all()
+
+    def get(self, pk: str) -> Patient:
+        return self.base_query.filter_by(id=pk).first()
 
     def create(self, patient: Patient) -> Patient:
         self.db.add(patient)
@@ -35,9 +47,7 @@ class PatientRepository:
         return patient
 
     def bulk_create(self, patients: List[Patient]) -> Patient:
-        self.db.bulk_save_objects(
-            patients
-        )
+        self.db.bulk_save_objects(patients)
         self.db.commit()
         return self.list()
 
