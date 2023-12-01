@@ -24,6 +24,13 @@ class PatientServices:
         return patient
 
     @classmethod
+    def delete_patient(cls, db: Session, pk: int):
+        repo = PatientRepository(db=db)
+        patient = repo.get(pk=pk)
+        repo.delete(patient=patient)
+        return None
+
+    @classmethod
     async def insert_patient(cls, data: PatientIn, db: Session):
         repo = PatientRepository(db=db)
         patient = Patient(**data.model_dump())

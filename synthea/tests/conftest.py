@@ -1,4 +1,3 @@
-# conftest.py
 import os
 
 import pytest
@@ -48,3 +47,14 @@ def resource():
 def client():
     with TestClient(app) as client:
         yield client
+
+
+@pytest.fixture()
+def token(client):
+    data = {"username": "anakin", "password": "12345"}
+    response = client.post(
+        "/v1/users/", json=data, headers={"content-type": "application/json"}
+    )
+    data = response.json()
+    token = data["token"]["access_token"]
+    return token

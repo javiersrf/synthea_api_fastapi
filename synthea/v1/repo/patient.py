@@ -1,4 +1,3 @@
-import datetime
 from typing import List
 
 from sqlalchemy import or_
@@ -57,8 +56,6 @@ class PatientRepository:
         return self.get(pk=pk)
 
     def delete(self, patient: Patient) -> None:
-        self.base_query.filter_by(id=patient.id).update(
-            deletad_at=datetime.datetime.now()
-        )
+        patient.delete()
         self.db.commit()
         self.db.flush()
