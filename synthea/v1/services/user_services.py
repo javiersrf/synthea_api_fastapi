@@ -7,7 +7,7 @@ from synthea.core.dependencies import get_db
 from synthea.core.models.user import User
 from synthea.core.schemas.user import UserIn
 from synthea.core.security import (ALGORITHM, SECRET_KEY, create_access_token,
-                                   get_password_hash, oauth2, verify_password)
+                                   get_password_hash, verify_token, verify_password)
 from synthea.v1.repo.user import UserRepository
 
 
@@ -60,7 +60,7 @@ class UserServices:
     async def get_current_user(
         cls,
         db: Session = Depends(get_db),
-        token: str = Depends(oauth2),
+        token: str = Depends(verify_token),
     ):
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

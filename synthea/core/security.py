@@ -26,7 +26,7 @@ def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-async def oauth2(authorization: str | None = Header(None)):
+async def verify_token(authorization: str | None = Header(None)):
     if authorization is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
