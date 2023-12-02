@@ -25,8 +25,3 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
-
-    def update(self, pk: int, **params) -> User:
-        self.base_query.filter_by(id=pk).update(params)
-        self.db.commit()
-        return self.get(pk=pk)

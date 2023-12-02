@@ -47,13 +47,16 @@ class PatientServices:
     async def update_patient(
         cls, patient: Patient, data: PatientPut, db: Session
     ) -> Patient:
-        if patient:
-            for key, value in data.model_dump().items():
-                if value:
-                    setattr(patient, key, value)
-            db.commit()
-            return patient
-        return None
+        if not patient:
+            raise HTTPException(
+                detail="Patient not found",
+                status_code=HTTP_400_BAD_REQUEST,
+            )
+        for key, value in data.model_dump().items():
+            if value:
+                setattr(patient, key, value)
+        db.commit()
+        return patient
 
     @classmethod
     async def insert_patients_from_file(cls, file: UploadFile, db: Session):
@@ -63,6 +66,12 @@ class PatientServices:
                 status_code=HTTP_400_BAD_REQUEST,
             )
         content = await extract_xml_file_content(file=file)
+        if not content:
+            raise HTTPException(
+                detail="There was an error uploading the file(s)",
+                status_code=HTTP_400_BAD_REQUEST,
+            )
+
         patient = cls._extract_patient_from_file_content(file_content=content)
 
         repo = PatientRepository(db=db)

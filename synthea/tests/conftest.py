@@ -54,9 +54,9 @@ def client():
         yield client
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=False)
 def token(client):
-    data = {"username": "anakin", "password": "12345"}
+    data = {"username": "admin", "password": "12345"}
     response = client.post(
         "/v1/users/", json=data, headers={"content-type": "application/json"}
     )

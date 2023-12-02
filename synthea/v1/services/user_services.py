@@ -29,17 +29,11 @@ class UserServices:
             username=user.username,
             password=hashed_password,
         )
-        db.add(db_user)
-        db.commit()
-        db.flush()
-        db.refresh(db_user)
-        access_token = create_access_token(data={"username": user.username})
+        db_user = repo.create(user=db_user)
+        access_token = create_access_token(
+            data={"username": user.username, "id": db_user.id}
+        )
         return db_user.dict() | _create_acess_token_output(access_token=access_token)
-
-    @classmethod
-    def get_user(db: Session, pk: int):
-        repo = UserRepository(db=db)
-        return repo.get(pk=pk)
 
     @classmethod
     def auth(cls, db: Session, user: UserIn):
@@ -54,7 +48,9 @@ class UserServices:
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong password"
             )
 
-        access_token = create_access_token(data={"username": user.username})
+        access_token = create_access_token(
+            data={"username": user.username, "id": db_user.id}
+        )
         return db_user.dict() | _create_acess_token_output(access_token=access_token)
 
     @classmethod
@@ -71,14 +67,14 @@ class UserServices:
 
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username: str = payload.get("username")
-            if not username:
+            user_id: int = payload.get("id")
+            if not user_id:
                 raise credentials_exception
         except JWTError:
             raise credentials_exception
 
         repo = UserRepository(db=db)
-        db_user = repo.find(username=username)
+        db_user = repo.get(pk=user_id)
 
         if db_user is None:
             raise credentials_exception

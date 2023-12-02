@@ -1,5 +1,7 @@
 from io import BytesIO
 
+from fastapi import UploadFile
+
 from synthea.core.models.patient import Patient
 from synthea.tests.factories.patient import PatientFactory
 from synthea.tests.utils import as_str
@@ -76,7 +78,7 @@ def test_post_patient_invalid_data(client, token):
 
 
 def test_post_patient_from_file(client, token):
-    input_file = "tests/mock/mock_input_file.xml"
+    input_file = "synthea/tests/mock/mock_input_file.xml"
     with open(input_file, "rb") as mock_file:
         fake_file_content = mock_file.read()
 
@@ -94,6 +96,24 @@ def test_post_patient_from_file(client, token):
     assert data["id"] == "799ff48f-934b-3e47-f3ea-9b0edaa43c93"
     assert data["name"] == "Aaron697"
     assert data["family"] == "Welch179"
+
+
+def test_post_patient_from_file_broken_content(client, token):
+    class ErrorFile(BytesIO):
+        def read(self, *args, **kwargs):
+            raise Exception("Mocked read error")
+
+    error_file = ErrorFile()
+    mock_upload_file = UploadFile(filename="test.xml", file=error_file)
+    response = client.post(
+        "/v1/patients/import/",
+        files={"file": (mock_upload_file.filename, mock_upload_file.file, "text/xml")},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data == {"detail": "There was an error parsing the body"}
 
 
 def test_failed_post_patient_from_wrong_format_file(client, token):
@@ -123,6 +143,17 @@ def test_update_patient(client, token):
     )
     assert response.status_code == 200
     assert response.json() == build_expected(patient) | updated_data
+
+
+def test_update_patient_not_found(client, token):
+    patient = PatientFactory(name="aaron")
+    url = PATH + str(patient.id) + "123"
+    updated_data = {"name": "bbron"}
+    response = client.put(
+        url, json=updated_data, headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Patient not found"}
 
 
 def test_list_patients_with_query(client, token):
