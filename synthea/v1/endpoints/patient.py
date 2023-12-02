@@ -47,12 +47,17 @@ async def post_patient(
     return output
 
 
-@router.post("/import/", response_model=PatientOut | list[PatientOut])
+@router.post("/import/", response_model=PatientOut | None)
 async def post_patient_from_file(
     file: UploadFile | None = None,
     db=Depends(get_db),
 ):
-    output = await PatientServices.insert_patients_from_files(file=file, db=db)
+    if not file:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": "Missing import file"},
+        )
+    output = await PatientServices.insert_patients_from_file(file=file, db=db)
     return output
 
 

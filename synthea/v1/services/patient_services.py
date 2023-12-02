@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
-from fastapi import HTTPException, UploadFile
+from fastapi import HTTPException
+from psycopg2.errors import UniqueViolation
 from sqlalchemy.orm import Session
+from starlette.datastructures import UploadFile
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from synthea.core.models.patient import Patient
@@ -34,7 +36,12 @@ class PatientServices:
     async def insert_patient(cls, data: PatientIn, db: Session):
         repo = PatientRepository(db=db)
         patient = Patient(**data.model_dump())
-        return repo.create(patient=patient)
+        if repo.get(pk=patient.id):
+            raise duplicated_error(patient.id)
+        try:
+            return repo.create(patient=patient)
+        except UniqueViolation as exc:
+            raise duplicated_error(patient.id) from exc
 
     @classmethod
     async def update_patient(
@@ -49,17 +56,22 @@ class PatientServices:
         return None
 
     @classmethod
-    async def insert_patients_from_files(cls, file: UploadFile, db: Session):
-        if not is_xml(file=file):
+    async def insert_patients_from_file(cls, file: UploadFile, db: Session):
+        if not (isinstance(file, UploadFile) and is_xml(file=file)):
             raise HTTPException(
-                detail={"message": "wrong format data"},
+                detail=f"wrong format data {file.filename} - {file.content_type}",
                 status_code=HTTP_400_BAD_REQUEST,
             )
         content = await extract_xml_file_content(file=file)
         patient = cls._extract_patient_from_file_content(file_content=content)
 
         repo = PatientRepository(db=db)
-        return repo.create(patient=patient)
+        if repo.get(pk=patient.id):
+            raise duplicated_error(patient.id)
+        try:
+            return repo.create(patient=patient)
+        except UniqueViolation as exc:
+            raise duplicated_error(patient.id) from exc
 
     @classmethod
     def _extract_patient_from_file_content(cls, file_content):
@@ -69,3 +81,10 @@ class PatientServices:
         family = patient_node.find("name").find("family").text
         _id = node.find("id").get("extension")
         return Patient(id=_id, name=name, family=family)
+
+
+def duplicated_error(id):
+    return HTTPException(
+        detail=f"A patient with this ID {id} already exists in the database.",
+        status_code=HTTP_400_BAD_REQUEST,
+    )

@@ -7,7 +7,8 @@ from synthea.core.dependencies import get_db
 from synthea.core.models.user import User
 from synthea.core.schemas.user import UserIn
 from synthea.core.security import (ALGORITHM, SECRET_KEY, create_access_token,
-                                   get_password_hash, verify_token, verify_password)
+                                   get_password_hash, verify_password,
+                                   verify_token)
 from synthea.v1.repo.user import UserRepository
 
 
