@@ -76,6 +76,42 @@ To run tests, linting, and style checks:
 make test
 ```
 
+Certainly! Here's the updated section for your README, reflecting the new Makefile commands:
+
+---
+
+### Building and Deploying with Docker
+
+#### Building the Docker Image
+
+To build the Docker image for the application, run:
+
+```bash
+make build
+```
+
+This command creates a Docker image named `synthea-api` with the `latest` tag.
+
+#### Deploying the Application
+
+To deploy the application using Docker, execute:
+
+```bash
+make deploy
+```
+
+This will run the `synthea-api` image in a Docker container. The container will be named `synthea-api`, and the application will be accessible on the specified port set by the `${PORT}` environment variable. Ensure that the `PORT` environment variable is set before running this command, or modify the Makefile to use a default port.
+
+### Development Workflow
+
+For a streamlined development process, use:
+
+```bash
+make dev
+```
+
+This command will clean up any existing containers, build the latest Docker image, and deploy the application. The screen will then be cleared, ready for development activities.
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

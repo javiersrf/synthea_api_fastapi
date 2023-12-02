@@ -1,3 +1,6 @@
+PORT=8000
+
+
 setup:
 	@pip install -U pip setuptools poetry
 
@@ -27,4 +30,16 @@ unit:
 	cd synthea && poetry run  pytest .
 
 run:
-	poetry --group dev run python -m synthea.main
+	poetry run python -m synthea.main
+
+clean:
+	docker system prune -f
+
+build:
+	docker build -t synthea-api:latest . 
+
+deploy:
+	docker run --name synthea-api --net=host -d -p ${PORT}:${PORT} synthea-api:latest
+
+dev: clean build deploy
+	clear
