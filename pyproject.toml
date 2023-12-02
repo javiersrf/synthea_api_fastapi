@@ -27,6 +27,7 @@ pytest = "^7.4.3"
 pytest-env = "^1.1.3"
 factory-boy = "^3.3.0"
 ruff = "^0.1.6"
+coverage = "^7.3.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -39,3 +40,8 @@ env = [
     "RUN_ENV=test",
     "SQLALCHEMY_DATABASE_URL=sqlite:///test.db"
 ]
+
+[tool.coverage.run]
+omit = [
+    "/synthea/tests/"
+    ]

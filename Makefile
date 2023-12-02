@@ -15,6 +15,7 @@ update:
 test:
 	@make lint
 	@make unit
+	@make cov
 
 lint:
 	@echo "Checking code style ..."
@@ -27,7 +28,11 @@ style:
 
 unit:
 	@echo "Running unit tests ..."
-	cd synthea && poetry run  pytest .
+	poetry run coverage run -m pytest synthea
+
+cov:
+	poetry run coverage report -m
+	@poetry run coverage html
 
 run:
 	poetry run python -m synthea.main
