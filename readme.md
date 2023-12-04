@@ -2,10 +2,6 @@
 
 This project is a comprehensive example of a CRUD (Create, Read, Update, Delete) application with soft delete functionality for data listing. It features a ready-to-use API designed for microservices, built using FastAPI. This setup not only demonstrates the essential operations of a web service but also integrates advanced features like soft deletion, which allows for non-destructive data handling. The architecture is optimized for scalability and efficiency, making it an ideal starting point for developing microservices in Python with FastAPI.
 
-## Description
-
-Provide a more detailed explanation of your project. Explain the purpose and functionality of the project, and how it relates to the Synthea dataset.
-
 ## Data Source
 
 The data for this project is sourced from Synthea, an open-source synthetic patient generator that models the medical histories of synthetic patients. More information can be found on their [website](https://synthea.mitre.org/).
@@ -81,17 +77,7 @@ To deploy the application using Docker, execute:
 make build
 ```
 
-This will run the `synthea-api` image in a Docker container. The container will be named `synthea-api`, and the application will be accessible on the specified port set by the `${PORT}` environment variable. Ensure that the `PORT` environment variable is set before running this command, or modify the Makefile to use a default port. The database will be placed in a container named postgres on the port `{DB_PORT}`
-
-### Development Workflow
-
-For a streamlined development process, use:
-
-```bash
-make dev
-```
-
-This command will clean up any existing containers, build the latest Docker image, and deploy the application. The screen will then be cleared, ready for development activities.
+This will run the `synthea-api` image in a Docker container. The container will be named `synthea-api`, and the application will be accessible on the specified port set by the `${PORT}` environment variable. Ensure that the `PORT` environment variable is set before running this command, or modify the Makefile to use a default port. The database will be placed in a container named postgres on the port `${DB_PORT}`
 
 ## Contributing
 
