@@ -1,5 +1,5 @@
 PORT=8000
-
+DB_PORT=5432
 
 setup:
 	@pip install -U pip setuptools poetry
@@ -41,10 +41,4 @@ clean:
 	docker system prune -f
 
 build:
-	docker build -t synthea-api:latest . 
-
-deploy:
-	docker run --name synthea-api --net=host -d -p ${PORT}:${PORT} synthea-api:latest
-
-dev: clean build deploy
-	clear
+	PORT=${PORT} DB_PORT=${DB_PORT} docker-compose up --build -d

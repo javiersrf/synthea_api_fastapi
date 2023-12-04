@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from synthea.v1.main import app as v1_app
 
-app = FastAPI()
+app = FastAPI(title="FastApi Examples")
 
 
 app.mount("/v1", v1_app)

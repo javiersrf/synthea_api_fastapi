@@ -10,17 +10,26 @@ router = APIRouter(
     prefix="/patients",
     tags=["patients"],
     dependencies=[Depends(UserServices.get_current_user)],
+    responses={401: {"detail": "Unauthorized"}},
 )
 
 
-@router.get("/", response_model=list[PatientOut])
+@router.get(
+    "/",
+    response_model=list[PatientOut],
+    description="### List patients or search with the parameter `q`",
+)
 async def list_patient(
     q: str | None = None, limit: int = None, start: int = None, db=Depends(get_db)
 ):
     return PatientServices.list_patients(db, q=q, limit=limit, start=start)
 
 
-@router.get("/{patient_id}", response_model=PatientOut)
+@router.get(
+    "/{patient_id}",
+    response_model=PatientOut,
+    description="### Show patient information",
+)
 async def get_patient(patient_id: str, db=Depends(get_db)):
     if not (patient := PatientServices.get_patient(db=db, pk=patient_id)):
         raise HTTPException(
@@ -29,13 +38,21 @@ async def get_patient(patient_id: str, db=Depends(get_db)):
     return patient
 
 
-@router.delete("/{patient_id}", status_code=status.HTTP_202_ACCEPTED)
+@router.delete(
+    "/{patient_id}",
+    status_code=status.HTTP_202_ACCEPTED,
+    description="### Delete patient",
+)
 async def delete_patient(patient_id: str, db=Depends(get_db)):
     PatientServices.delete_patient(db=db, pk=patient_id)
     return {"message": "deleted"}
 
 
-@router.post("/", response_model=PatientOut | list[PatientOut])
+@router.post(
+    "/",
+    response_model=PatientOut | list[PatientOut],
+    description="### Post patient data directly",
+)
 async def post_patient(
     patient: PatientIn,
     db=Depends(get_db),
@@ -47,7 +64,11 @@ async def post_patient(
     return output
 
 
-@router.post("/import/", response_model=PatientOut | None)
+@router.post(
+    "/import/",
+    response_model=PatientOut | None,
+    description="### Import patient data using the synthea xml file information",
+)
 async def post_patient_from_file(
     file: UploadFile | None = None,
     db=Depends(get_db),
@@ -61,7 +82,11 @@ async def post_patient_from_file(
     return output
 
 
-@router.put("/{patient_id}", response_model=PatientOut)
+@router.put(
+    "/{patient_id}",
+    response_model=PatientOut,
+    description="### Update patient information",
+)
 async def update_patient(
     patient_id: str, patient_update: PatientPut, db=Depends(get_db)
 ):

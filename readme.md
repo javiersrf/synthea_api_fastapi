@@ -14,42 +14,25 @@ Sample data can be downloaded from the following URL: [Synthea Sample Data](http
 
 ## Prerequisites
 
-List any prerequisites, libraries, OS version, tools, etc., needed before installing the program.
-
-For example:
-- PostgreSQL
 - Python 3.11
 - Poetry for Python dependency management
+- docker
+- docker-compose
 
 ## Installation
 
-### Database Setup
+### Docker-Compose Setup
 
 To install and start PostgreSQL:
 
 ```bash
-sudo apt-get -y install postgresql
-sudo service postgresql start
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 ```
-
-#### Creating the Database
-
-Access PostgreSQL CLI and create a database named `synthea`:
-
-```sql
-CREATE DATABASE synthea;
-```
-
-#### Importing Data
-
-To import data from a file:
-
+Verify the result of installation
 ```bash
-sudo -u postgres psql synthea < path/to/dump.sql
+docker-compose --version
 ```
-
-Replace `path/to/dump.sql` with the actual path to your SQL dump file (placed in the repository).
-
 ### Application Setup
 
 #### Install Dependencies
@@ -70,37 +53,35 @@ make run
 
 ## Running Tests
 
-To run tests, linting, and style checks:
+#### Only Tests
 
+```bash
+make unit
+```
+
+#### Full Tests Setup
+To run tests, linting, and style checks:
 ```bash
 make test
 ```
 
-Certainly! Here's the updated section for your README, reflecting the new Makefile commands:
-
----
-
-### Building and Deploying with Docker
-
-#### Building the Docker Image
-
-To build the Docker image for the application, run:
-
+#### Coverage
+To run coverage:
 ```bash
-make build
+make cov
 ```
 
-This command creates a Docker image named `synthea-api` with the `latest` tag.
+### Building and Deploying with Docker
 
 #### Deploying the Application
 
 To deploy the application using Docker, execute:
 
 ```bash
-make deploy
+make build
 ```
 
-This will run the `synthea-api` image in a Docker container. The container will be named `synthea-api`, and the application will be accessible on the specified port set by the `${PORT}` environment variable. Ensure that the `PORT` environment variable is set before running this command, or modify the Makefile to use a default port.
+This will run the `synthea-api` image in a Docker container. The container will be named `synthea-api`, and the application will be accessible on the specified port set by the `${PORT}` environment variable. Ensure that the `PORT` environment variable is set before running this command, or modify the Makefile to use a default port. The database will be placed in a container named postgres on the port `{DB_PORT}`
 
 ### Development Workflow
 
