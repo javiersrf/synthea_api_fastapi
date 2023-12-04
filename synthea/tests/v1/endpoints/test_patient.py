@@ -98,6 +98,35 @@ def test_post_patient_from_file(client, token):
     assert data["family"] == "Welch179"
 
 
+def test_post_patient_from_file_with_invalid_patient(client, token):
+    input_file = "synthea/tests/mock/mock_input_file_invalid_patient.xml"
+    with open(input_file, "rb") as mock_file:
+        fake_file_content = mock_file.read()
+
+    fake_file = BytesIO(fake_file_content)
+    fake_file.name = "mock_input_file.xml"
+
+    response = client.post(
+        "/v1/patients/import/",
+        files={"file": (fake_file.name, fake_file, "text/xml")},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data == {
+        "detail": [
+            {
+                "input": None,
+                "loc": ["name"],
+                "msg": "Input should be a valid string",
+                "type": "string_type",
+                "url": "https://errors.pydantic.dev/2.5/v/string_type",
+            }
+        ]
+    }
+
+
 def test_post_patient_from_file_broken_content(client, token):
     class ErrorFile(BytesIO):
         def read(self, *args, **kwargs):

@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
 from psycopg2.errors import UniqueViolation
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from starlette.datastructures import UploadFile
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -71,11 +72,18 @@ class PatientServices:
                 detail="There was an error uploading the file(s)",
                 status_code=HTTP_400_BAD_REQUEST,
             )
-
-        patient = cls._extract_patient_from_file_content(file_content=content)
-
+        try:
+            patient_data: PatientIn = cls._extract_patient_from_file_content(
+                file_content=content
+            )
+        except ValidationError as ecx:
+            raise HTTPException(
+                detail=ecx.errors(),
+                status_code=HTTP_400_BAD_REQUEST,
+            )
+        patient = Patient(**patient_data.model_dump())
         repo = PatientRepository(db=db)
-        if repo.get(pk=patient.id):
+        if patient.id and repo.get(pk=patient.id):
             raise duplicated_error(patient.id)
         try:
             return repo.create(patient=patient)
@@ -89,7 +97,9 @@ class PatientServices:
         name = patient_node.find("name").find("given").text
         family = patient_node.find("name").find("family").text
         _id = node.find("id").get("extension")
-        return Patient(id=_id, name=name, family=family)
+        patient = PatientIn(family=family, name=name, id=_id)
+
+        return patient
 
 
 def duplicated_error(id):
